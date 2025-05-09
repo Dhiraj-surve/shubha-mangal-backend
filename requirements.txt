@@ -1,3 +1,4 @@
-Flask
-flask-cors
-psycopg2-binary
+Flask==2.x
+flask-cors==3.x  # Ensure you have the correct version
+psycopg2-binary==2.x
+gunicorn==20.x  # Add this for running the app on Render
