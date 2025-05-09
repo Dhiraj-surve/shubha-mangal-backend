@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: shubha-mangal-backend
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn app:app
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: shubha-mangal-db
+          property: host
+      - key: DB_NAME
+        fromDatabase:
+          name: shubha-mangal-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: shubha-mangal-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: shubha-mangal-db
+          property: password
+      - key: DB_PORT
+        value: 5432
