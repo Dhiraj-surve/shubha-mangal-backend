@@ -4,9 +4,9 @@ import psycopg2
 import os
 
 app = Flask(__name__)
-CORS(app)  # Allow frontend on GitHub Pages to call this API
+CORS(app)
 
-# Database connection using environment variables
+# Connect to the PostgreSQL DB
 def get_db_connection():
     return psycopg2.connect(
         host=os.environ.get("DB_HOST"),
@@ -23,23 +23,47 @@ def home():
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    userid = data.get('userid')
-    password = data.get('password')
 
     try:
+        userid = data['userid']
+        password = data['password']
+        firstName = data['firstName']
+        lastName = data['lastName']
+        gender = data['gender']
+        dob = data['dob']
+        maritalStatus = data['maritalStatus']
+        motherTongue = data['motherTongue']
+        religion = data['religion']
+        caste = data['caste']
+        subCaste = data['subCaste']
+        email = data['email']
+        mobile = data['mobile']
+
         conn = get_db_connection()
         cur = conn.cursor()
 
         # Check if user already exists
-        cur.execute("SELECT * FROM users WHERE userid = %s", (userid,))
+        cur.execute("SELECT 1 FROM users WHERE userid = %s", (userid,))
         if cur.fetchone():
             return jsonify({'status': 'fail', 'message': 'User ID already exists'}), 400
 
-        cur.execute("INSERT INTO users (userid, password) VALUES (%s, %s)", (userid, password))
+        # Insert all fields
+        cur.execute("""
+            INSERT INTO users (
+                userid, password, firstName, lastName, gender, dob, maritalStatus,
+                motherTongue, religion, caste, subCaste, email, mobile
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            userid, password, firstName, lastName, gender, dob, maritalStatus,
+            motherTongue, religion, caste, subCaste, email, mobile
+        ))
+
         conn.commit()
         cur.close()
         conn.close()
+
         return jsonify({'status': 'success'})
+
     except Exception as e:
         return jsonify({'status': 'fail', 'error': str(e)}), 500
 
@@ -52,7 +76,7 @@ def login():
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM users WHERE userid = %s AND password = %s", (userid, password))
+        cur.execute("SELECT 1 FROM users WHERE userid = %s AND password = %s", (userid, password))
         user = cur.fetchone()
         cur.close()
         conn.close()
